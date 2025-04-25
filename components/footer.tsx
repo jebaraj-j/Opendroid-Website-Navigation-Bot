@@ -28,6 +28,11 @@ export default function Footer() {
                   Careers
                 </Link>
               </li>
+              <li>
+                <Link href="/support" className="text-gray-400 hover:text-white">
+                  Support
+                </Link>
+              </li>
             </ul>
           </div>
 

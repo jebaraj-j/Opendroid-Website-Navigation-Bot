@@ -1,16 +1,18 @@
 "use client";
+import React, { useEffect, useRef } from 'react';
 import smoothscroll from 'smoothscroll-polyfill';
-smoothscroll.polyfill();
-import React, { useRef } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  // Create a ref for the home section and explicitly type it as HTMLElement
   const homeRef = useRef<HTMLElement | null>(null);
 
-  // Handle the scroll to the home section
+  useEffect(() => {
+    // ✅ Runs only in browser
+    smoothscroll.polyfill();
+  }, []);
+
   const handleScrollToHome = () => {
     if (homeRef.current) {
       homeRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -56,23 +58,23 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {[{
-              title: "Research",
-              description:
-                "Explore our cutting-edge research in artificial intelligence, machine learning, and robotics.",
-              link: "/research",
-            },
-            {
-              title: "Magazine",
-              description:
-                "Read the latest articles, insights, and updates from our team and the broader AI community.",
-              link: "/magazine",
-            },
-            {
-              title: "Careers",
-              description: "Join our team of experts and contribute to the future of AI and robotics technology.",
-              link: "/careers",
-            }].map((item, index) => (
+            {[
+              {
+                title: "Research",
+                description: "Explore our cutting-edge research in artificial intelligence, machine learning, and robotics.",
+                link: "/research",
+              },
+              {
+                title: "Magazine",
+                description: "Read the latest articles, insights, and updates from our team and the broader AI community.",
+                link: "/magazine",
+              },
+              {
+                title: "Careers",
+                description: "Join our team of experts and contribute to the future of AI and robotics technology.",
+                link: "/careers",
+              },
+            ].map((item, index) => (
               <Link key={index} href={item.link} className="card group p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold mb-4">{item.title}</h3>
                 <p className="text-gray-400 mb-6 flex-grow">{item.description}</p>
