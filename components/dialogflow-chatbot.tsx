@@ -20,13 +20,13 @@ export default function DialogflowChatbot() {
     setMessages((prev) => [...prev, { role: "user", content: input }]);
 
     try {
-      const response = await fetch("http://localhost:3001/api/dialogflow", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch('http://localhost:3001/api/dialogflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: input }),
       });
+      
+      
     
       const data = await response.json();
     

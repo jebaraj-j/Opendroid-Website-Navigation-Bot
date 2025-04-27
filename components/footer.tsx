@@ -28,11 +28,6 @@ export default function Footer() {
                   Careers
                 </Link>
               </li>
-              <li>
-                <Link href="/support" className="text-gray-400 hover:text-white">
-                  Support
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -55,8 +50,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white">
-                  Privacy Policy
+                <Link href="/support" className="text-gray-400 hover:text-white">
+                  Support
                 </Link>
               </li>
             </ul>

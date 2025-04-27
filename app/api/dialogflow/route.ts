@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import * as path from "path"
 
 // Adjust path to your service account JSON key
-const keyPath = path.resolve(process.cwd(), "./keys/droid-navigation-key.json")
+const keyPath = path.resolve(process.cwd(), "G:/vercel/keys/droid-navigation-key.json")
 
 const client = new SessionsClient({ keyFilename: keyPath })
 
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   const userMessage = body.message
   const sessionId = uuidv4()
 
-  const sessionPath = client.projectAgentSessionPath("YOUR_PROJECT_ID", sessionId)
+  const sessionPath = client.projectAgentSessionPath("droid-bot-rlrv", sessionId)
 
   const dialogflowRequest = {
     session: sessionPath,
