@@ -2,62 +2,79 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const { SessionsClient } = require('@google-cloud/dialogflow');
-const path = require('path');
 const cors = require('cors');
+const { SessionsClient } = require('@google-cloud/dialogflow');
+const textToSpeech = require('@google-cloud/text-to-speech');
 const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
 
-// Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3001; // Default to 3001
+const PORT = process.env.PORT || 3001;  // Using one port (you can change if needed)
 
-// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
-// Dialogflow client setup
-const keyPath = path.join(__dirname, 'keys', 'droid-navigation-key.json');
-const sessionClient = new SessionsClient({ keyFilename: keyPath });
-const projectId = 'droid-bot-rlrv'; // Replace with your Dialogflow project ID
+// Initialize Dialogflow and TTS clients with the same key
+const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-// Dialogflow API endpoint
+const sessionClient = new SessionsClient({ keyFilename: credentialsPath });
+const ttsClient = new textToSpeech.TextToSpeechClient({ keyFilename: credentialsPath });
+
+const projectId = 'droid-bot-rlrv';  // Your project ID
+
+// ===== Dialogflow Route =====
 app.post('/api/dialogflow', async (req, res) => {
-  const { text } = req.body; // safer destructuring
-  if (!text) {
-    return res.status(400).json({ error: 'Missing "text" field in request body.' });
-  }
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Missing text' });
 
   const sessionId = uuidv4();
   const sessionPath = sessionClient.projectAgentSessionPath(projectId, sessionId);
 
-  const dialogflowRequest = {
+  const request = {
     session: sessionPath,
     queryInput: {
-      text: {
-        text,
-        languageCode: 'en-US',
-      },
+      text: { text, languageCode: 'en-US' },
     },
   };
 
   try {
-    const responses = await sessionClient.detectIntent(dialogflowRequest);
+    const responses = await sessionClient.detectIntent(request);
     const result = responses[0]?.queryResult;
-
-    const fulfillmentText = result?.fulfillmentText || "No response from Dialogflow.";
-    const payload = result?.fulfillmentMessages?.find(msg => msg.payload)?.payload?.fields || null;
-
     res.json({
-      fulfillmentText,
-      payload,
+      fulfillmentText: result?.fulfillmentText || '',
+      payload: result?.fulfillmentMessages?.find(msg => msg.payload)?.payload?.fields || null,
     });
   } catch (error) {
     console.error('Dialogflow Error:', error);
-    res.status(500).json({ error: 'Failed to connect to Dialogflow.' });
+    res.status(500).json({ error: 'Dialogflow failed' });
   }
 });
 
-// Start the server
+// ===== TTS Route =====
+app.post('/api/tts', async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Missing text' });
+
+  const request = {
+    input: { text },
+    voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
+    audioConfig: { audioEncoding: 'MP3' },
+  };
+
+  try {
+    const [response] = await ttsClient.synthesizeSpeech(request);
+    res.set('Content-Type', 'audio/mpeg');
+    res.send(response.audioContent);
+  } catch (error) {
+    console.error('TTS Error:', error);
+    res.status(500).json({ error: 'TTS failed' });
+  }
+});
+
+// ===== Start Server =====
 app.listen(PORT, () => {
-  console.log(`✅ Backend server running at: http://localhost:${PORT}`);
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`Available routes:`);
+  console.log(`- POST /api/dialogflow`);
+  console.log(`- POST /api/tts`);
 });
