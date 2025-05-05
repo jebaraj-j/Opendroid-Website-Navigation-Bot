@@ -28,3 +28,8 @@ next-env.d.ts
 
 keys/
 .env.local
+
+# Ignore all JSON secrets
+*.json
+__pycache__/
+
